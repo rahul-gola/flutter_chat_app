@@ -1,11 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_app/core/di/di.dart';
-import 'package:intl/intl.dart';
+
 import 'bloc/chat_bloc.dart';
-import 'package:domain/src/model/chat_message.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({
@@ -68,7 +65,7 @@ class _ChatPageState extends State<ChatPage> {
                     padding: const EdgeInsets.all(8),
                     itemCount: messages.length,
                     itemBuilder: (context, index) {
-                      final ChatMessage message = messages[index];
+                      final message = messages[index];
                       final isMe = message.senderId == widget.senderUid;
                       return ChatMessageWidget(
                         message: message.message,

@@ -1,10 +1,4 @@
 class ChatMessage {
-  final String id;
-  final String senderId;
-  final String receiverId;
-  final String message;
-  final DateTime timestamp;
-
   ChatMessage({
     required this.id,
     required this.senderId,
@@ -22,6 +16,11 @@ class ChatMessage {
       timestamp: DateTime.parse(json['timestamp'] as String),
     );
   }
+  final String id;
+  final String senderId;
+  final String receiverId;
+  final String message;
+  final DateTime timestamp;
 
   Map<String, dynamic> toJson() => {
         'senderId': senderId,

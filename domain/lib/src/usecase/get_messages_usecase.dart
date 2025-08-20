@@ -6,9 +6,8 @@ import 'package:injectable/injectable.dart';
 
 @injectable
 class GetMessagesUsecase {
-  final ChatRepository repository;
-
   GetMessagesUsecase({required this.repository});
+  final ChatRepository repository;
 
   Stream<Either<BaseError, List<ChatMessage>>> call(String chatId) {
     return repository.getMessages(chatId);

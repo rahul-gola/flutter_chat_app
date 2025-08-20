@@ -20,7 +20,7 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> with RequestController {
     final password = passwordController.text.trim();
     print('email $email password $password');
     if (email.isNotEmpty && password.isNotEmpty) {
-      apiCall<UserDataModel>(
+      getDataWithPramas<UserDataModel>(
         signUpUseCase,
         params: SignUpParams(
           username: email,

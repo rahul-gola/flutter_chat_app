@@ -33,20 +33,20 @@ extension GetItInjectableX on _i174.GetIt {
       environment,
       environmentFilter,
     );
-    gh.factory<_i179.GetUsersUseCase>(
-        () => _i179.GetUsersUseCase(gh<_i498.UserRepository>()));
     gh.factory<_i688.CurrentUserUsecase>(
         () => _i688.CurrentUserUsecase(gh<_i498.UserRepository>()));
+    gh.factory<_i179.GetUsersUseCase>(
+        () => _i179.GetUsersUseCase(gh<_i498.UserRepository>()));
     gh.factory<_i876.UserSignOutUseCase>(
         () => _i876.UserSignOutUseCase(gh<_i498.UserRepository>()));
+    gh.factory<_i587.SendMessageUsecase>(
+        () => _i587.SendMessageUsecase(gh<_i747.ChatRepository>()));
     gh.factory<_i12.SignInUseCase>(
         () => _i12.SignInUseCase(gh<_i609.AuthRepository>()));
     gh.factory<_i388.SignUpUseCase>(
         () => _i388.SignUpUseCase(gh<_i609.AuthRepository>()));
     gh.factory<_i143.GetMessagesUsecase>(
         () => _i143.GetMessagesUsecase(repository: gh<_i747.ChatRepository>()));
-    gh.factory<_i587.SendMessageUsecase>(
-        () => _i587.SendMessageUsecase(repository: gh<_i747.ChatRepository>()));
     return this;
   }
 }

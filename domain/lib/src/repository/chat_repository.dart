@@ -6,5 +6,7 @@ abstract class ChatRepository {
   Stream<Either<BaseError, List<ChatMessage>>> getMessages(String chatId);
 
   Future<Either<BaseError, void>> sendMessage(
-      String chatId, ChatMessage message);
+    String chatId,
+    ChatMessage message,
+  );
 }

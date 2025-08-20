@@ -31,14 +31,13 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> with RequestController {
   final CurrentUserUsecase currentUserUsecase;
 
   void init() {
-    currentUserUsecase.execute().then((value) {
-      value.fold(
-        (error) {},
-        (data) {
-          add(CurrentUserDataEvent(data));
-        },
-      );
-    });
+    getData<UserDataModel>(
+      currentUserUsecase,
+      onSuccess: (s) {
+        add(CurrentUserDataEvent(s));
+      },
+    );
+
     getUsersUseCase.execute().listen((value) {
       value.fold(
         (error) {},
@@ -50,13 +49,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> with RequestController {
   }
 
   void signOut(VoidCallback success) {
-    signOutUser.execute().then((value) {
-      value.fold(
-        (error) {},
-        (data) {
-          success();
-        },
-      );
-    });
+    getData<bool>(signOutUser, onSuccess: (s) => success());
   }
 }

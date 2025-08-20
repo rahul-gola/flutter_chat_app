@@ -18,7 +18,7 @@ class SplashScreen extends StatelessWidget {
       child = HomePage();
     }
     return AnimatedSplashScreen(
-      splash: Image.asset("assets/splash-logo.png"),
+      splash: Image.asset('assets/splash-logo.png'),
       nextScreen: child,
       duration: 4,
       splashIconSize: 70,

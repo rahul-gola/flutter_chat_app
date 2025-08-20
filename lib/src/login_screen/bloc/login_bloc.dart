@@ -24,9 +24,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> with RequestController {
   void login(void Function() onSuccess) {
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
-    print('email $email password $password');
     if (email.isNotEmpty && password.isNotEmpty) {
-      apiCall<UserDataModel>(
+      getDataWithPramas<UserDataModel>(
         signInUseCase,
         params: SignInParams(username: email, password: password),
         onSuccess: (s) {
