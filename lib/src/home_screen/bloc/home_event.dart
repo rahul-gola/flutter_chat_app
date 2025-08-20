@@ -8,3 +8,9 @@ class HomeGetAllUsersEvent extends HomeEvent {
 
   final List<UserDataModel> userList;
 }
+
+class CurrentUserDataEvent extends HomeEvent {
+  CurrentUserDataEvent(this.value);
+
+  final UserDataModel value;
+}

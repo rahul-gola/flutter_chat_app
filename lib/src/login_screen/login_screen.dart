@@ -56,7 +56,7 @@ class LoginScreen extends BaseStatelessWidget<LoginBloc> {
                   model.login(() {
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => const HomePage()),
+                      MaterialPageRoute(builder: (context) =>  HomePage()),
                     );
                   });
                 },

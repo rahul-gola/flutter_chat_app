@@ -13,4 +13,14 @@ class UserRepositoryImpl implements UserRepository {
   Stream<Either<BaseError, List<UserDataModel>>> getAllUsers() {
     return userDataSource.getAllUsers();
   }
+
+  @override
+  Future<Either<BaseError, UserDataModel>> getCurrentUserName() {
+    return userDataSource.getCurrentUserName();
+  }
+
+  @override
+  Future<Either<BaseError, bool>> signOutUser() {
+    return userDataSource.signOutUser();
+  }
 }

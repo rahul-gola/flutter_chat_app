@@ -15,4 +15,14 @@ class UserDataSourceImpl implements UserDataSource {
   Stream<Either<BaseError, List<UserDataModel>>> getAllUsers() {
     return _retrofitService.getAllUsers();
   }
+
+  @override
+  Future<Either<BaseError, UserDataModel>> getCurrentUserName() {
+   return _retrofitService.getCurrentUserName();
+  }
+
+  @override
+  Future<Either<BaseError, bool>> signOutUser() {
+    return _retrofitService.signOutUser();
+  }
 }

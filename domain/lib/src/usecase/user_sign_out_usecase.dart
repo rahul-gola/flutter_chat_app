@@ -9,13 +9,13 @@ import 'package:domain/src/usecase/sign_up/sign_up_usecase.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
-class GetUsersUseCase extends BaseUsesCaseStream<List<UserDataModel>> {
-  GetUsersUseCase(this._userRepository);
+class UserSignOutUseCase extends BaseUsesCaseNoParams<bool> {
+  UserSignOutUseCase(this._userRepository);
 
   final UserRepository _userRepository;
 
   @override
-  Stream<Either<BaseError, List<UserDataModel>>> execute() {
-    return _userRepository.getAllUsers();
+  Future<Either<BaseError, bool>> execute() {
+    return _userRepository.signOutUser();
   }
 }

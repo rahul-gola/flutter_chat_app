@@ -28,11 +28,15 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i884.LoginBloc>(
       () => _i884.LoginBloc(gh<_i494.SignInUseCase>()),
     );
+    gh.factory<_i972.HomeBloc>(
+      () => _i972.HomeBloc(
+        gh<_i494.GetUsersUseCase>(),
+        gh<_i494.UserSignOutUseCase>(),
+        gh<_i494.CurrentUserUsecase>(),
+      ),
+    );
     gh.factory<_i137.SignUpBloc>(
       () => _i137.SignUpBloc(gh<_i494.SignUpUseCase>()),
-    );
-    gh.factory<_i972.HomeBloc>(
-      () => _i972.HomeBloc(gh<_i494.GetUsersUseCase>()),
     );
     return this;
   }

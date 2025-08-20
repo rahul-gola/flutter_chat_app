@@ -1,35 +1,27 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_app/core/di/di.dart';
 import 'package:flutter_chat_app/src/chat_page/chat_page.dart';
 import 'package:flutter_chat_app/src/home_screen/bloc/home_bloc.dart';
 import 'package:flutter_chat_app/src/login_screen/login_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
-
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  final currentUser = FirebaseAuth.instance.currentUser;
-  List<QueryDocumentSnapshot<Map<String, dynamic>>> searchResults = [];
-
-  String? currentUserName;
+class HomePage extends StatelessWidget {
+  HomePage({super.key});
 
   final bloc = getIt<HomeBloc>();
 
-
-
-  // Logout with confirmation
-  void confirmLogout() {
-    showDialog(
+  void confirmLogout(BuildContext context) {
+    showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Sign Out'),
+        title: Text(
+          'Sign Out',
+          style: GoogleFonts.poppins(
+            fontSize: 16,
+            color: const Color(0xff2865DC),
+          ),
+        ),
         content: const Text('Are you sure you want to sign out?'),
         actions: [
           TextButton(
@@ -37,14 +29,17 @@ class _HomePageState extends State<HomePage> {
             child: const Text('Cancel'),
           ),
           TextButton(
-            onPressed: () async {
+            onPressed: () {
               try {
-                await FirebaseAuth.instance.signOut();
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => const LoginScreen()),
-                  (route) => false,
-                );
+                bloc.signOut(() {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const LoginScreen(),
+                    ),
+                    (route) => false,
+                  );
+                });
               } catch (e) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Failed to Sign Out')),
@@ -58,39 +53,19 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  //get current user name
-  Future<String?> getCurrentUserName() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return null;
-
-    final doc = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .get();
-
-    if (doc.exists && doc.data()!.containsKey('name')) {
-      return doc['name'];
-    }
-
-    return null;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    loadCurrentUserName();
-  }
-
-  void loadCurrentUserName() async {
-    currentUserName = await getCurrentUserName();
-    setState(() {});
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Home'),
+        title: Text(
+          'Home',
+          style: GoogleFonts.poppins(
+            fontSize: 16,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: const Color(0xff2865DC),
+
       ),
       body: BlocBuilder<HomeBloc, HomeState>(
         bloc: bloc,
@@ -103,16 +78,13 @@ class _HomePageState extends State<HomePage> {
             itemCount: snapshot.userList.length,
             itemBuilder: (context, index) {
               final user = snapshot.userList[index];
-              if (user.uid == currentUser?.uid) {
-                return const SizedBox.shrink();
-              }
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 3),
                 child: ListTile(
-                  leading: CircleAvatar(child: Icon(Icons.person)),
+                  leading: const CircleAvatar(child: Icon(Icons.person)),
                   title: Text(
                     user.displayName,
-                    style: TextStyle(fontWeight: FontWeight.w600),
+                    style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                   subtitle: Text(user.email),
                   onTap: () {
@@ -136,11 +108,16 @@ class _HomePageState extends State<HomePage> {
         child: ListView(
           children: [
             DrawerHeader(
-              decoration: const BoxDecoration(color: Colors.grey),
+              decoration: const BoxDecoration(color: Color(0xff2865DC)),
               child: Center(
-                child: Text(
-                  currentUserName ?? 'Loading...',
-                  style: const TextStyle(color: Colors.white, fontSize: 24),
+                child: BlocBuilder<HomeBloc, HomeState>(
+                  bloc: bloc,
+                  builder: (context, state) {
+                    return Text(
+                      state.currentUser?.displayName ?? 'User',
+                      style: const TextStyle(color: Colors.white, fontSize: 24),
+                    );
+                  },
                 ),
               ),
             ),
@@ -148,8 +125,10 @@ class _HomePageState extends State<HomePage> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 ListTile(
-                  onTap: confirmLogout,
-                  title: const Text('L O G O U T'),
+                  onTap: () {
+                    confirmLogout(context);
+                  },
+                  title: const Text('Logout'),
                   leading: const Icon(Icons.logout),
                 ),
               ],
