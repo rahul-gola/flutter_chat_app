@@ -194,12 +194,21 @@ class FirebaseService {
       try {
         final messages = snapshot.docs.map((doc) {
           final data = doc.data();
+          dynamic ts = data['timestamp'];
+          DateTime timestamp;
+          if (ts is String) {
+            timestamp = DateTime.parse(ts);
+          } else if (ts is Timestamp) {
+            timestamp = ts.toDate();
+          } else {
+            timestamp = DateTime.now();
+          }
           return ChatMessage(
             id: doc.id,
             senderId: data['senderId'] as String,
             receiverId: data['receiverId'] as String,
             message: data['message'] as String,
-            timestamp: DateTime.parse(data['timestamp'] as String),
+            timestamp: timestamp,
           );
         }).toList();
         return Right(messages);
