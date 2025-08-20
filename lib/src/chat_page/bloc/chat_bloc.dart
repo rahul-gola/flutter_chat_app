@@ -57,6 +57,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> with RequestController {
       params: SendMessageParams(chatId: event.chatId, message: chatMessage),
       onSuccess: (s) {
         emit(MessageSent());
+        add(LoadMessagesEvent(chatId: event.chatId));
       },
       onFailure: (e) {
         emit(ChatError(error: e.message));
