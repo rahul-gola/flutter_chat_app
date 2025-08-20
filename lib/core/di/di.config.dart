@@ -10,6 +10,9 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:domain/domain.dart' as _i494;
+import 'package:domain/src/usecase/get_messages_usecase.dart' as _i143;
+import 'package:domain/src/usecase/send_message_usecase.dart' as _i587;
+import 'package:flutter_chat_app/src/chat_page/bloc/chat_bloc.dart' as _i425;
 import 'package:flutter_chat_app/src/home_screen/bloc/home_bloc.dart' as _i972;
 import 'package:flutter_chat_app/src/login_screen/bloc/login_bloc.dart'
     as _i884;
@@ -33,6 +36,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i494.GetUsersUseCase>(),
         gh<_i494.UserSignOutUseCase>(),
         gh<_i494.CurrentUserUsecase>(),
+      ),
+    );
+    gh.factory<_i425.ChatBloc>(
+      () => _i425.ChatBloc(
+        sendMessageUsecase: gh<_i587.SendMessageUsecase>(),
+        getMessagesUsecase: gh<_i143.GetMessagesUsecase>(),
       ),
     );
     gh.factory<_i137.SignUpBloc>(

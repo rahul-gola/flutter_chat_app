@@ -10,9 +10,12 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:domain/src/repository/auth/auth_repository.dart' as _i609;
+import 'package:domain/src/repository/chat_repository.dart' as _i747;
 import 'package:domain/src/repository/user/user_repository.dart' as _i498;
 import 'package:domain/src/usecase/current_user_usecase.dart' as _i688;
+import 'package:domain/src/usecase/get_messages_usecase.dart' as _i143;
 import 'package:domain/src/usecase/get_users_usecase.dart' as _i179;
+import 'package:domain/src/usecase/send_message_usecase.dart' as _i587;
 import 'package:domain/src/usecase/sign_in/sign_in_usecase.dart' as _i12;
 import 'package:domain/src/usecase/sign_up/sign_up_usecase.dart' as _i388;
 import 'package:domain/src/usecase/user_sign_out_usecase.dart' as _i876;
@@ -40,6 +43,10 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i12.SignInUseCase(gh<_i609.AuthRepository>()));
     gh.factory<_i388.SignUpUseCase>(
         () => _i388.SignUpUseCase(gh<_i609.AuthRepository>()));
+    gh.factory<_i143.GetMessagesUsecase>(
+        () => _i143.GetMessagesUsecase(repository: gh<_i747.ChatRepository>()));
+    gh.factory<_i587.SendMessageUsecase>(
+        () => _i587.SendMessageUsecase(repository: gh<_i747.ChatRepository>()));
     return this;
   }
 }

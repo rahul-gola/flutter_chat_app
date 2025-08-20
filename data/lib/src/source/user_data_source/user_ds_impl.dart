@@ -18,7 +18,7 @@ class UserDataSourceImpl implements UserDataSource {
 
   @override
   Future<Either<BaseError, UserDataModel>> getCurrentUserName() {
-   return _retrofitService.getCurrentUserName();
+    return _retrofitService.getCurrentUserName();
   }
 
   @override

@@ -10,4 +10,3 @@ export 'src/usecase/sign_in/sign_in_usecase.dart';
 export 'src/usecase/sign_up/sign_up_usecase.dart';
 export 'src/usecase/current_user_usecase.dart';
 export 'src/usecase/user_sign_out_usecase.dart';
-

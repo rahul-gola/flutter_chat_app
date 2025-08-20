@@ -65,7 +65,6 @@ class HomePage extends StatelessWidget {
           ),
         ),
         backgroundColor: const Color(0xff2865DC),
-
       ),
       body: BlocBuilder<HomeBloc, HomeState>(
         bloc: bloc,
@@ -94,6 +93,7 @@ class HomePage extends StatelessWidget {
                         builder: (context) => ChatPage(
                           receiverEmail: user.email,
                           receiverUid: user.uid,
+                          senderUid: snapshot.currentUser?.uid ?? '',
                         ),
                       ),
                     );

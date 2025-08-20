@@ -1,52 +1,52 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_chat_app/core/di/di.dart';
 import 'package:intl/intl.dart';
+import 'bloc/chat_bloc.dart';
+import 'package:domain/src/model/chat_message.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({
     required this.receiverEmail,
     required this.receiverUid,
+    required this.senderUid,
     super.key,
   });
   final String receiverEmail;
   final String receiverUid;
+  final String senderUid;
 
   @override
   State<ChatPage> createState() => _ChatPageState();
 }
 
 class _ChatPageState extends State<ChatPage> {
-  final User user = FirebaseAuth.instance.currentUser!;
+  final bloc = getIt<ChatBloc>();
   final TextEditingController _messageController = TextEditingController();
-
   late final String chatId;
 
   @override
   void initState() {
     super.initState();
-    // Create a unique chatId using both user UIDs (sorted to avoid duplicates)
-    final ids = [user.uid, widget.receiverUid];
+    final ids = [widget.senderUid, widget.receiverUid];
     ids.sort();
     chatId = ids.join('_');
+    bloc.add(LoadMessagesEvent(chatId: chatId));
   }
 
-  // Send a message
-  Future<void> sendMessage() async {
+  void sendMessage() {
     final text = _messageController.text.trim();
     if (text.isEmpty) return;
-
-    await FirebaseFirestore.instance
-        .collection('chats')
-        .doc(chatId)
-        .collection('messages')
-        .add({
-          'senderId': user.uid,
-          'receiverId': widget.receiverUid,
-          'message': text,
-          'timestamp': FieldValue.serverTimestamp(),
-        });
-
+    bloc.add(
+      SendMessageEvent(
+        chatId: chatId,
+        message: text,
+        senderId: widget.senderUid,
+        receiverId: widget.receiverUid,
+      ),
+    );
     _messageController.clear();
   }
 
@@ -57,36 +57,30 @@ class _ChatPageState extends State<ChatPage> {
       body: Column(
         children: [
           Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('chats')
-                  .doc(chatId)
-                  .collection('messages')
-                  .orderBy('timestamp')
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
+            child: BlocBuilder<ChatBloc, ChatState>(
+              bloc: bloc,
+              builder: (context, state) {
+                if (state is ChatLoading) {
                   return const Center(child: CircularProgressIndicator());
+                } else if (state is ChatLoaded) {
+                  final messages = state.messages;
+                  return ListView.builder(
+                    padding: const EdgeInsets.all(8),
+                    itemCount: messages.length,
+                    itemBuilder: (context, index) {
+                      final ChatMessage message = messages[index];
+                      final isMe = message.senderId == widget.senderUid;
+                      return ChatMessageWidget(
+                        message: message.message,
+                        isMe: isMe,
+                        time: message.timestamp,
+                      );
+                    },
+                  );
+                } else if (state is ChatError) {
+                  return Center(child: Text(state.error));
                 }
-
-                final messages = snapshot.data?.docs ?? [];
-
-                return ListView.builder(
-                  padding: const EdgeInsets.all(8),
-                  itemCount: messages.length,
-                  itemBuilder: (context, index) {
-                    final message = messages[index];
-                    final time = message['timestamp'] ?? Timestamp.now();
-
-                    final isMe = message['senderId'] == user.uid;
-
-                    return ChatMessage(
-                      message: message['message'],
-                      isMe: isMe,
-                      time: time,
-                    );
-                  },
-                );
+                return const SizedBox.shrink();
               },
             ),
           ),
@@ -117,9 +111,9 @@ class _ChatPageState extends State<ChatPage> {
   }
 }
 
-// Reusable ChatMessage Widget
-class ChatMessage extends StatelessWidget {
-  const ChatMessage({
+// Stateless widget to display a chat message
+class ChatMessageWidget extends StatelessWidget {
+  const ChatMessageWidget({
     required this.message,
     required this.isMe,
     required this.time,
@@ -127,15 +121,12 @@ class ChatMessage extends StatelessWidget {
   });
   final String message;
   final bool isMe;
-  final Timestamp time;
+  final DateTime time;
 
   @override
   Widget build(BuildContext context) {
-    final dateTime = time.toDate(); // Convert Timestamp to DateTime
-    final formattedTime = DateFormat(
-      'hh:mm a',
-    ).format(dateTime); // Format
-
+    final formattedTime =
+        '${time.hour}:${time.minute.toString().padLeft(2, '0')}';
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(

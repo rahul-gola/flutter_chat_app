@@ -3,17 +3,18 @@ import 'package:domain/domain.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:injectable/injectable.dart';
+import 'package:domain/src/model/chat_message.dart';
 
 @lazySingleton
 class FirebaseService {
   final _firebaseAuth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
 
-  final _user = FirebaseAuth.instance.currentUser;
-
-  Future<Either<BaseError, UserDataModel>> getUserSignUp(String email,
-      String password,
-      String name,) async {
+  Future<Either<BaseError, UserDataModel>> getUserSignUp(
+    String email,
+    String password,
+    String name,
+  ) async {
     try {
       final credential = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
@@ -54,8 +55,10 @@ class FirebaseService {
     }
   }
 
-  Future<Either<BaseError, UserDataModel>> getUserSignIn(String email,
-      String password,) async {
+  Future<Either<BaseError, UserDataModel>> getUserSignIn(
+    String email,
+    String password,
+  ) async {
     try {
       final credential = await _firebaseAuth.signInWithEmailAndPassword(
         email: email,
@@ -83,7 +86,7 @@ class FirebaseService {
 
   Future<Either<BaseError, UserDataModel>> getCurrentUserName() async {
     try {
-      if (_user == null) {
+      if (FirebaseAuth.instance.currentUser == null) {
         return Left(BaseError(
           message: 'No user logged in',
           cause: Exception(
@@ -92,7 +95,10 @@ class FirebaseService {
         ));
       }
 
-      final doc = await _firestore.collection('users').doc(_user.uid).get();
+      final doc = await _firestore
+          .collection('users')
+          .doc(FirebaseAuth.instance.currentUser?.uid)
+          .get();
       if (doc.exists && doc.data() != null) {
         final data = doc.data()!;
         return Right(UserDataModel.fromJson(data));
@@ -115,7 +121,8 @@ class FirebaseService {
         .map<Either<BaseError, List<UserDataModel>>>((snapshot) {
       try {
         final users = snapshot.docs
-            .where((doc) => doc.data()['uid'] != _user?.uid)
+            .where((doc) =>
+                doc.data()['uid'] != FirebaseAuth.instance.currentUser?.uid)
             .map((doc) => UserDataModel.fromJson(doc.data()))
             .toList();
         return Right(users);
@@ -152,5 +159,54 @@ class FirebaseService {
     } on FirebaseAuthException catch (exception) {
       return Left(BaseError(message: 'Sign out failed', cause: exception));
     }
+  }
+
+  // Send a message
+  Future<Either<BaseError, void>> sendMessage(
+      String chatId, ChatMessage message) async {
+    try {
+      await _firestore
+          .collection('chats')
+          .doc(chatId)
+          .collection('messages')
+          .add({
+        'senderId': message.senderId,
+        'receiverId': message.receiverId,
+        'message': message.message,
+        'timestamp': message.timestamp.toIso8601String(),
+      });
+      return const Right(null);
+    } catch (e) {
+      return Left(
+          BaseError(message: 'Failed to send message', cause: Exception(e)));
+    }
+  }
+
+  // Stream messages by chatId
+  Stream<Either<BaseError, List<ChatMessage>>> getMessages(String chatId) {
+    return _firestore
+        .collection('chats')
+        .doc(chatId)
+        .collection('messages')
+        .orderBy('timestamp')
+        .snapshots()
+        .map<Either<BaseError, List<ChatMessage>>>((snapshot) {
+      try {
+        final messages = snapshot.docs.map((doc) {
+          final data = doc.data();
+          return ChatMessage(
+            id: doc.id,
+            senderId: data['senderId'] as String,
+            receiverId: data['receiverId'] as String,
+            message: data['message'] as String,
+            timestamp: DateTime.parse(data['timestamp'] as String),
+          );
+        }).toList();
+        return Right(messages);
+      } catch (e) {
+        return Left(
+            BaseError(message: 'Failed to load messages', cause: Exception(e)));
+      }
+    });
   }
 }
